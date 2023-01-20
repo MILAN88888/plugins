@@ -23,9 +23,34 @@ class Test_movie
         add_action('save_post', array($this, 'save_custom_text_box'));
         add_action('save_post', array($this, 'save_custom_select_box'));
         add_action('save_post', array($this, 'save_custom_textarea_box'));
+        add_action('save_post', array($this, 'save_movie_director'));
+        add_action('save_post', array($this, 'save_movie_casts'));
+        add_action('save_post', array($this, 'save_movie_release_date'));
+
         add_action('init', array($this, 'movie_custom_post_type'));
+        add_action('init', array($this, 'fruits_custom_taxonomy'));
     }
 
+    /**
+     * Function for fruits custom taxonomy
+     */
+    public function fruits_custom_taxonomy()
+    {
+        $labels = array(
+            'name'=>'Fruits',
+            'singular_name' => 'fruit',
+            'search_items' => "search fruit"
+        );
+        $args = array(
+            'labels' => $labels,
+            'hierarchical' => true,
+            'show_ui' => true,
+            'show_admin_column' => true,
+            'query_var' => true,
+            'rewrite' => ['slug'=>'fruits'],
+        );
+        register_taxonomy('fruits', ['post'], $args);
+    }
     /**
      * Function add movie costum meta box
      * 
@@ -55,23 +80,63 @@ class Test_movie
         );
 
     }
-    public function movie_director_html()
+    public function movie_director_html($post)
     {
+        $value = get_post_meta($post->ID, '_movie_director', true);
         ?>
-        <input type="text" name="movie_director" id="movie_director" />
+        <input type="text" name="movie_director" id="movie_director" value="<?php esc_attr($value); ?>" />
         <?php
     }
-    public function movie_casts_html()
+    public function movie_casts_html($post)
     {
+        $value = get_post_meta($post->ID, '_movie_casts', true);
+
         ?>
-        <input type="text" name="movie_casts" id="movie_casts" />
+        <input type="text" name="movie_casts" id="movie_casts" value="<?php esc_attr($value)?>" />
         <?php
     }
-    public function movie_release_date_html()
+    public function movie_release_date_html($post)
     {
+        $value = get_post_meta($post->ID, '_movie_release_date', true);
+
         ?>
-        <input type="text" name="movie_release_date" id="movie_release_date" />
+        <input type="text" name="movie_release_date" id="movie_release_date" value="<?php esc_attr($value) ?>" />
         <?php
+    }
+    public function save_movie_director($post_id)
+    {
+        if (array_key_exists('movie_director', $_POST)) {
+            $input_value = sanitize_text_field($_POST['movie_director']);
+            update_post_meta(
+                $post_id,
+                '_movie_director',
+                $input_value
+            );
+        }
+    }
+    public function save_movie_casts($post_id)
+    {
+        
+        if (array_key_exists('movie_casts', $_POST)) {
+            $input_value = sanitize_text_field($_POST['movie_casts']);
+            update_post_meta(
+                $post_id,
+                '_movie_casts',
+                $input_value
+            );
+        }
+    }
+    public function save_movie_release_date($post_id)
+    {
+        
+        if (array_key_exists('movie_release_date', $_POST)) {
+            $input_value = sanitize_text_field($_POST['movie_release_date']);
+            update_post_meta(
+                $post_id,
+                '_movie_release_date',
+                $input_value
+            );
+        }
     }
     /**
      * Function to add costum post product detail form
